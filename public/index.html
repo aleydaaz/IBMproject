@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatTask Extractor — AI Agent Ekstraksi Tugas</title>
+    <meta
+      name="description"
+      content="AI Agent yang mengubah ekspor chat grup kerja mahasiswa menjadi daftar tindak lanjut terstruktur."
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Tailwind config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#eef2ff",
+                100: "#e0e7ff",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca",
+              },
+              warning: {
+                50: "#fffbeb",
+                100: "#fef3c7",
+                600: "#d97706",
+                700: "#b45309",
+              },
+              success: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                600: "#16a34a",
+                700: "#15803d",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-gray-50 text-gray-800 min-h-screen antialiased">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+        <!-- Logo icon -->
+        <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center shadow-sm">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-gray-900 leading-tight">ChatTask Extractor</h1>
+          <p class="text-xs text-gray-500 leading-none">AI Agent Ekstraksi Tugas dari Chat Grup</p>
+        </div>
+        <!-- Badge -->
+        <span class="ml-auto hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-700">
+          Powered by Gemini
+        </span>
+      </div>
+    </header>
+
+    <!-- ── Main content ────────────────────────────────────────────────── -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+      <!-- ── Input section ────────────────────────────────────────────── -->
+      <section aria-labelledby="input-heading">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <!-- Card header -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 id="input-heading" class="text-base font-semibold text-gray-900">
+                Tempel Teks Chat
+              </h2>
+              <p class="text-sm text-gray-500 mt-0.5">
+                Salin dan tempel ekspor chat WhatsApp / Telegram / LINE grup kerja Anda.
+              </p>
+            </div>
+            <!-- Sample chat button -->
+            <button
+              id="btn-sample"
+              type="button"
+              class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-400 bg-brand-50 hover:bg-brand-100 rounded-lg px-3 py-1.5 transition-colors duration-150"
+              aria-label="Gunakan chat contoh"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Gunakan Chat Contoh
+            </button>
+          </div>
+
+          <!-- Textarea -->
+          <div class="px-6 pt-4 pb-2">
+            <label for="chat-input" class="sr-only">Teks chat grup</label>
+            <textarea
+              id="chat-input"
+              rows="12"
+              placeholder="[10/10/2024, 09.05] Reza: ok besok kita kumpul jam 10 ya
+[10/10/2024, 09.06] Dina: setuju, siapa yang bawa laptop?
+..."
+              class="w-full resize-y rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-800 font-mono placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow duration-150 min-h-[200px]"
+              aria-describedby="input-hint"
+            ></textarea>
+            <p id="input-hint" class="mt-1.5 text-xs text-gray-400">
+              Data chat tidak disimpan dan tidak dikirim ke pihak lain selain API Gemini.
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div class="px-6 pb-5 pt-3 flex items-center gap-3 flex-wrap">
+            <!-- Analyze button -->
+            <button
+              id="btn-analyze"
+              type="button"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-700 text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-live="polite"
+            >
+              <!-- Default state icon -->
+              <svg id="analyze-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              <!-- Loading spinner (hidden by default) -->
+              <svg id="analyze-spinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span id="analyze-label">Analisis</span>
+            </button>
+
+            <!-- Clear button -->
+            <button
+              id="btn-clear"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:text-gray-800 hover:bg-gray-100 text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Hapus
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Error banner (hidden by default) ─────────────────────────── -->
+      <div
+        id="error-banner"
+        role="alert"
+        aria-live="assertive"
+        class="hidden items-center gap-3 px-5 py-4 rounded-xl border border-red-200 bg-red-50 text-red-700"
+      >
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p id="error-message" class="text-sm font-medium"></p>
+        <button
+          id="btn-close-error"
+          class="ml-auto flex-shrink-0 text-red-500 hover:text-red-700 transition-colors"
+          aria-label="Tutup pesan error"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- ── Loading skeleton (hidden by default) ──────────────────────── -->
+      <div id="loading-state" class="hidden space-y-6" aria-label="Sedang menganalisis chat..." aria-busy="true">
+        <!-- Summary skeleton -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-gray-200 p-5 animate-pulse">
+            <div class="h-3 bg-gray-200 rounded w-2/3 mb-3"></div>
+            <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-gray-200 p-5 animate-pulse">
+            <div class="h-3 bg-gray-200 rounded w-2/3 mb-3"></div>
+            <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-gray-200 p-5 animate-pulse">
+            <div class="h-3 bg-gray-200 rounded w-2/3 mb-3"></div>
+            <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+          </div>
+        </div>
+        <!-- Table skeleton -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 animate-pulse space-y-3">
+          <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div class="h-3 bg-gray-200 rounded"></div>
+          <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+          <div class="h-3 bg-gray-200 rounded w-4/6"></div>
+          <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+          <div class="h-3 bg-gray-200 rounded w-3/6"></div>
+        </div>
+      </div>
+
+      <!-- ── Results section (hidden by default) ───────────────────────── -->
+      <section id="results-section" class="hidden space-y-6" aria-labelledby="results-heading">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <h2 id="results-heading" class="text-base font-semibold text-gray-900">
+            Hasil Analisis
+          </h2>
+          <!-- Copy result button -->
+          <button
+            id="btn-copy"
+            type="button"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 rounded-lg px-3 py-1.5 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+            aria-label="Salin hasil analisis"
+          >
+            <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <svg id="copy-check-icon" class="w-4 h-4 hidden text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span id="copy-label">Salin Hasil</span>
+          </button>
+        </div>
+
+        <!-- ── Summary cards ─────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" role="region" aria-label="Ringkasan tugas">
+          <!-- Total tasks card -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4 card-hover">
+            <div class="w-11 h-11 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Tugas</p>
+              <p id="stat-total" class="text-3xl font-bold text-gray-900">0</p>
+            </div>
+          </div>
+
+          <!-- Clear tasks card -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4 card-hover">
+            <div class="w-11 h-11 rounded-xl bg-success-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Tugas Jelas</p>
+              <p id="stat-clear" class="text-3xl font-bold text-success-600">0</p>
+            </div>
+          </div>
+
+          <!-- Needs confirmation card -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4 card-hover">
+            <div class="w-11 h-11 rounded-xl bg-warning-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-warning-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Perlu Konfirmasi</p>
+              <p id="stat-confirm" class="text-3xl font-bold text-warning-600">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tasks table ────────────────────────────────────────────── -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Daftar Tugas</h3>
+          </div>
+          <!-- Scrollable table wrapper -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm" aria-label="Daftar tugas yang diekstraksi">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-5">No</th>
+                  <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Tugas</th>
+                  <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Penanggung Jawab</th>
+                  <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Deadline</th>
+                  <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tasks-tbody">
+                <!-- Filled by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Empty state (shown when no tasks) -->
+          <div id="empty-tasks" class="hidden px-6 py-10 text-center text-sm text-gray-400">
+            <svg class="w-10 h-10 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Tidak ada tugas yang terdeteksi dalam chat ini.
+          </div>
+        </div>
+
+        <!-- ── Decisions list ─────────────────────────────────────────── -->
+        <div id="decisions-card" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Keputusan yang Disepakati</h3>
+          </div>
+          <ul id="decisions-list" class="divide-y divide-gray-100" aria-label="Daftar keputusan">
+            <!-- Filled by JavaScript -->
+          </ul>
+          <!-- Empty state -->
+          <div id="empty-decisions" class="hidden px-6 py-10 text-center text-sm text-gray-400">
+            Tidak ada keputusan yang terdeteksi dalam chat ini.
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- ── Footer ──────────────────────────────────────────────────────── -->
+    <footer class="mt-12 pb-6 text-center">
+      <p class="text-xs text-gray-400">
+        ChatTask Extractor &mdash; Chat Anda tidak disimpan. Privasi terjaga.
+      </p>
+    </footer>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+  </body>
+</html>

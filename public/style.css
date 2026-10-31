@@ -1,0 +1,198 @@
+/**
+ * style.css — ChatTask Extractor
+ * Custom styles supplementing Tailwind CSS.
+ * Covers: warning rows, fade-in animations, scrollbar polish,
+ * and any micro-interaction not expressible purely in Tailwind utility classes.
+ */
+
+/* ── Custom scrollbar (WebKit) ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Fade-in animation for result section ───────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.35s ease-out both;
+}
+
+/* Apply staggered fade-in to result cards */
+#results-section > * {
+  animation: fadeInUp 0.35s ease-out both;
+}
+#results-section > *:nth-child(1) { animation-delay: 0ms; }
+#results-section > *:nth-child(2) { animation-delay: 60ms; }
+#results-section > *:nth-child(3) { animation-delay: 120ms; }
+#results-section > *:nth-child(4) { animation-delay: 180ms; }
+
+/* ── Card hover lift effect ─────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Table row styles ───────────────────────────────────────────────────── */
+
+/* Default row hover */
+#tasks-tbody tr {
+  transition: background-color 0.12s ease;
+}
+#tasks-tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Warning row — "Perlu Konfirmasi" */
+#tasks-tbody tr.row-warning {
+  background-color: #fffbeb;
+  border-left: 3px solid #f59e0b;
+}
+#tasks-tbody tr.row-warning:hover {
+  background-color: #fef3c7;
+}
+
+/* Reason note within warning row */
+.reason-note {
+  font-size: 0.72rem;
+  color: #92400e;
+  margin-top: 3px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  line-height: 1.4;
+}
+.reason-note::before {
+  content: "⚠";
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Status badge styles ────────────────────────────────────────────────── */
+.badge-clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: #dcfce7;
+  color: #15803d;
+  white-space: nowrap;
+}
+
+.badge-confirm {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #b45309;
+  white-space: nowrap;
+}
+
+/* ── Decision list item styles ──────────────────────────────────────────── */
+.decision-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.5;
+  transition: background-color 0.12s ease;
+}
+.decision-item:hover {
+  background-color: #f9fafb;
+}
+.decision-item::before {
+  content: "✓";
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+/* ── Loading shimmer override ───────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ── Error banner show/hide ─────────────────────────────────────────────── */
+#error-banner.visible {
+  display: flex;
+}
+
+/* ── Smooth transitions for show/hide via JS ────────────────────────────── */
+.section-visible {
+  display: block;
+}
+
+/* ── Textarea font polish ───────────────────────────────────────────────── */
+#chat-input {
+  font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ── Mobile tweaks ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #tasks-tbody td,
+  #tasks-tbody th {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .decision-item {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ── Copy button success flash ──────────────────────────────────────────── */
+@keyframes copyFlash {
+  0%   { background-color: #f0fdf4; border-color: #86efac; }
+  100% { background-color: transparent; border-color: #d1d5db; }
+}
+#btn-copy.copied {
+  animation: copyFlash 1.2s ease-out;
+}

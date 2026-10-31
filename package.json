@@ -1,0 +1,25 @@
+{
+  "name": "chattask-extractor",
+  "version": "1.0.0",
+  "description": "AI Agent yang mengubah chat grup kerja mahasiswa menjadi daftar tindak lanjut terstruktur. Powered by Google Gemini.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ai",
+    "gemini",
+    "task-extractor",
+    "chat-analysis"
+  ],
+  "license": "MIT"
+}
